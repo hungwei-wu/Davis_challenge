@@ -11,13 +11,17 @@ import sys
 
 import fcn16_vgg
 import utils
-
+from imagenet_classes import class_names
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
 
 from tensorflow.python.framework import ops
-
+def show_top5_class(img):
+    unique, counts = np.unique(img, return_counts=True)
+    preds = (np.argsort(counts)[::-1])[0:5]
+    for p in preds:
+        print class_names[unique[p]], counts[p]
 #img1 = scp.misc.imread("./test_data/tabby_cat.png")
 img1 = scp.misc.imread("./test_data/bus1.jpg")
 
@@ -43,7 +47,7 @@ with tf.Session() as sess:
     print('Running the Network')
     tensors = [vgg_fcn.pred, vgg_fcn.pred_up]
     down, up = sess.run(tensors, feed_dict=feed_dict)
-
+    show_top5_class(down[0])
     down_color = utils.color_image(down[0])
     up_color = utils.color_image(up[0])
 
