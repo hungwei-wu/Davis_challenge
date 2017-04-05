@@ -13,10 +13,10 @@ class settings():
 	#depth = [3,96,256,256,384,21]
 	#layer_depth = {'conv1': (3,96), 'conv2':(96,256),'conv3': (256,256), 'conv4':(256,384),'conv5':(384,21) }
 	#layer_depth = {'conv1': (3,64), 'conv2':(64,96),'conv3': (96,96), 'conv4':(96,64),'conv5':(64,64)}
-	layer_depth = {'conv1': (3,64),'conv2':(64,128), 
-		'conv3':(128,256), 'conv4':(256,512),'conv5':(512,512),
-		'conv_6_nopool':(512,4096), 'conv_7_nopool':(4096,21)}
-	MAX_STEPS = 100000
+	#layer_depth = {'conv1': (3,64),'conv2':(64,128), 
+	#	'conv3':(128,256), 'conv4':(256,512),'conv5':(512,512),
+	#	'conv_6_nopool':(512,4096), 'conv_7_nopool':(4096,21)}
+	MAX_STEPS = 50
 	log_device_placement = False
 	#shuffle = False
 	shuffle = True

@@ -18,7 +18,8 @@ def show_top5_class(img):
     preds = (np.argsort(counts)[::-1])[0:5]
     for p in preds:
         print class_names[unique[p]], counts[p]
-img1 = scp.misc.imread("./test_data/tabby_cat.png")
+#img1 = scp.misc.imread("./test_data/tabby_cat.png")
+img1 = scp.misc.imread("/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages/2007_000032.jpg")
 #img1 = scp.misc.imread("./test_data/bus1.jpg")
 #np.set_printoptions(threshold=np.nan,edgeitems=100)
 np.set_printoptions(threshold=np.nan)
@@ -27,7 +28,7 @@ with tf.Session() as sess:
     feed_dict = {images: img1}
     batch_images = tf.expand_dims(images, 0)
 
-    vgg_fcn = fcn32_vgg.FCN32VGG()
+    vgg_fcn = fcn32_vgg.FCN32VGG(vgg16_npy_path='./tmp/vgg16.npy')
     with tf.name_scope("content_vgg"):
         vgg_fcn.build(batch_images, debug=True)
 

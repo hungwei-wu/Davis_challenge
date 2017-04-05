@@ -5,7 +5,7 @@ from settings import settings
 import time
 from datetime import datetime
 #import loss_pal
-import loss
+from loss import *
 import numpy
 from input_by_numpy import *
 
@@ -26,15 +26,19 @@ def actual_train(images_batch,labels_batch):
     print("===> building graphs")
     # Build a Graph that computes the logits predictions from the
     # inference model.
-    vgg_fcn = fcn32_vgg.FCN32VGG()
+    vgg_fcn = fcn32_vgg.FCN32VGG(vgg16_npy_path='./tmp/vgg16.npy')
     with tf.name_scope("content_vgg"):
         vgg_fcn.build(images_batch, debug=True)
     #logits = train_pal.inference(images_batch,isTrain = True)
     
+
+    ############### output of VGG net
     logits = vgg_fcn.upscore
+    #logits = vgg_fcn.conv5
+    ###############
     #loss = loss_pal.loss(logits,labels_batch)
     logits = tf.cast(logits,tf.float32)
-    loss_scalar = loss.loss(logits, labels_batch, num_classes=settings.NUM_CLASSES)
+    loss_scalar = loss_proj2(logits, labels_batch)
     #train_op = train_pal.train(loss, global_step)
     opt = tf.train.AdamOptimizer(settings.INITIAL_LEARNING_RATE)
     grads = opt.compute_gradients(loss_scalar)
@@ -55,12 +59,12 @@ def actual_train(images_batch,labels_batch):
       def before_run(self, run_context):
         self._step += 1
         self._start_time = time.time()
-        return tf.train.SessionRunArgs(loss)  # Asks for loss value.
+        return tf.train.SessionRunArgs(loss_scalar)  # Asks for loss value.
 
       def after_run(self, run_context, run_values):
         duration = time.time() - self._start_time
         loss_value = run_values.results
-        if self._step % 10 == 0:
+        if self._step % 1 == 0:
           num_examples_per_step = settings.BATCH_SIZE
           examples_per_sec = num_examples_per_step / duration
           sec_per_batch = float(duration)
@@ -73,7 +77,7 @@ def actual_train(images_batch,labels_batch):
     with tf.train.MonitoredTrainingSession(
         checkpoint_dir='checkpoints/',
         hooks=[tf.train.StopAtStepHook(last_step=settings.MAX_STEPS),
-               tf.train.NanTensorHook(loss),
+               tf.train.NanTensorHook(loss_scalar),
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=settings.log_device_placement),
