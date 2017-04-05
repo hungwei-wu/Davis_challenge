@@ -1,15 +1,16 @@
-from input_assg2 import *
+
+#from input_assg2 import *
 from PIL import Image
 from settings import settings
-#import train_pal
 import time
 from datetime import datetime
-#import loss_pal
 from loss import *
 import numpy
-from input_by_numpy import *
-
-import fcn32_vgg
+#### import pascal (assignment 2)
+from pascal import *
+#from input_by_numpy import *
+####
+import nets.fcn32_vgg as fcn32_vgg
 import utils
 def conv_transpose(tensor, out_channel, shape, strides, name=None):
   out_shape = tensor.get_shape().as_list()
@@ -28,7 +29,7 @@ def actual_train(images_batch,labels_batch):
     # inference model.
     vgg_fcn = fcn32_vgg.FCN32VGG(vgg16_npy_path='./tmp/vgg16.npy')
     with tf.name_scope("content_vgg"):
-        vgg_fcn.build(images_batch, debug=True)
+        vgg_fcn.build(images_batch, debug=True,train=True, num_classes=21, random_init_fc8=True)
     #logits = train_pal.inference(images_batch,isTrain = True)
     
 
@@ -64,7 +65,7 @@ def actual_train(images_batch,labels_batch):
       def after_run(self, run_context, run_values):
         duration = time.time() - self._start_time
         loss_value = run_values.results
-        if self._step % 1 == 0:
+        if self._step % 10 == 0:
           num_examples_per_step = settings.BATCH_SIZE
           examples_per_sec = num_examples_per_step / duration
           sec_per_batch = float(duration)
@@ -116,7 +117,7 @@ BATCH_SIZE = settings.BATCH_SIZE
 #filenames = read_filenames_from_txt('./data/TrainVal/VOCdevkit/VOC2011/ImageSets/Segmentation/train.txt')
 numpy.set_printoptions(threshold=numpy.nan)
 #readimg = readIMage('./data/TrainVal/VOCdevkit/VOC2011/ImageSets/Segmentation/train.txt',
-readimg = readIMage(settings.TRAIN_TXT,
+readimg = input_by_numpy.readIMage(settings.TRAIN_TXT,
   settings.IMAGE_DIR,
   settings.LABEL_DIR)
 

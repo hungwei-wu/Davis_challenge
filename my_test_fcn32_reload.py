@@ -7,11 +7,11 @@ import scipy.misc
 import numpy as np
 import tensorflow as tf
 
-import fcn32_vgg
+import nets.fcn32_vgg as fcn32_vgg
 import utils
-
+from settings import settings
 #from imagenet_classes import class_names
-from pascal_classes import class_names
+from pascal.pascal_classes import class_names
 from tensorflow.python.framework import ops
 def show_top5_class(img):
     unique, counts = np.unique(img, return_counts=True)
@@ -19,7 +19,7 @@ def show_top5_class(img):
     for p in preds:
         print class_names[unique[p]], counts[p]
 #img1 = scp.misc.imread("./test_data/tabby_cat.png")
-img1 = scp.misc.imread("/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages/2007_000032.jpg")
+img1 = scp.misc.imread("/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages/2007_000243.jpg")
 #img1 = scp.misc.imread("./test_data/bus1.jpg")
 #np.set_printoptions(threshold=np.nan,edgeitems=100)
 np.set_printoptions(threshold=np.nan)
@@ -30,7 +30,7 @@ with tf.Session() as sess:
 
     vgg_fcn = fcn32_vgg.FCN32VGG(vgg16_npy_path='./tmp/vgg16.npy')
     with tf.name_scope("content_vgg"):
-        vgg_fcn.build(batch_images, debug=True)
+        vgg_fcn.build(batch_images,num_classes=21, debug=True)
 
     print('Finished building Network.')
 
@@ -54,6 +54,6 @@ with tf.Session() as sess:
     show_top5_class(up[0])
     down_color = utils.color_image(down[0])
     up_color = utils.color_image(up[0])
-
-    scp.misc.imsave('fcn32_downsampled.png', down_color)
-    scp.misc.imsave('fcn32_upsampled.png', up_color)
+    scp.misc.imsave(os.path.join(settings.img_result,'original.png'),img1)
+    scp.misc.imsave(os.path.join(settings.img_result,'fcn32_downsampled.png'), down_color)
+    scp.misc.imsave(os.path.join(settings.img_result,'fcn32_upsampled.png'), up_color)
