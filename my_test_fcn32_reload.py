@@ -19,7 +19,7 @@ def show_top5_class(img):
     for p in preds:
         print class_names[unique[p]], counts[p]
 #img1 = scp.misc.imread("./test_data/tabby_cat.png")
-img1 = scp.misc.imread("/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages/2007_000243.jpg")
+img1 = scp.misc.imread("/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages/2007_000241.jpg")
 #img1 = scp.misc.imread("./test_data/bus1.jpg")
 #np.set_printoptions(threshold=np.nan,edgeitems=100)
 np.set_printoptions(threshold=np.nan)
