@@ -20,6 +20,11 @@ def show_top5_class(img):
         print class_names[unique[p]], counts[p]
 #img1 = scp.misc.imread("./test_data/tabby_cat.png")
 dir_path = "/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages/"
+
+with open("train_pascal.txt") as f:
+    contents = f.readlines()
+# you may also want to remove whitespace characters like `\n` at the end of each line
+content = [x.strip()+'.jpg' for x in contents] 
 img_filename = "2007_000121.jpg"
 img_filename_without_extension = os.path.splitext(img_filename)[0] 
 img1 = scp.misc.imread(os.path.join(dir_path,img_filename))
@@ -45,18 +50,25 @@ with tf.Session() as sess:
 
     print('Running the Network')
     tensors = [vgg_fcn.pred, vgg_fcn.pred_up,vgg_fcn.score_fr]
-    down, up, down_score = sess.run(tensors, feed_dict=feed_dict)
-    
-    max_scores = np.argmax(down_score,axis=3)
 
-    print('down: ')
-    print(down[0])
-    #show_top5_class(down[0])
-    show_top5_class(down[0])
-    print('up: ')
-    show_top5_class(up[0])
-    down_color = utils.color_image(down[0])
-    up_color = utils.color_image(up[0])
-    scp.misc.imsave(os.path.join(settings.img_result,img_filename_without_extension+'_original.png'),img1)
-    scp.misc.imsave(os.path.join(settings.img_result,img_filename_without_extension+'_fcn32_downsampled.png'), down_color)
-    scp.misc.imsave(os.path.join(settings.img_result,img_filename_without_extension+'_fcn32_upsampled.png'), up_color)
+    for i in range(30):
+        print("reading img: " + content[i])
+        img_filename = content[i]
+        img_filename_without_extension = os.path.splitext(img_filename)[0] 
+        img1 = scp.misc.imread(os.path.join(dir_path,img_filename))
+        feed_dict = {images: img1}
+        down, up, down_score = sess.run(tensors, feed_dict=feed_dict)
+        
+        max_scores = np.argmax(down_score,axis=3)
+
+        print('down: ')
+        print(down[0])
+        #show_top5_class(down[0])
+        show_top5_class(down[0])
+        print('up: ')
+        show_top5_class(up[0])
+        down_color = utils.color_image(down[0])
+        up_color = utils.color_image(up[0])
+        scp.misc.imsave(os.path.join(settings.img_result,img_filename_without_extension+'_original.png'),img1)
+        scp.misc.imsave(os.path.join(settings.img_result,img_filename_without_extension+'_fcn32_downsampled.png'), down_color)
+        scp.misc.imsave(os.path.join(settings.img_result,img_filename_without_extension+'_fcn32_upsampled.png'), up_color)
