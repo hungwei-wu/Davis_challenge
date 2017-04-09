@@ -48,6 +48,26 @@ def loss(logits, labels, num_classes, head=None):
 
         loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
     return loss
+
+def loss_fore_background(logits, labels):
+  """
+  From Wei
+  Args:
+    logits: Logits from inference and upsampled(), with settings.BATCH_SIZE, settings.NUM_CLASSES 
+      , and same size to the labelled image. ([batch, height, width, classes])
+    labels: Batched labels from image labels, same size with the images. 
+  Returns:
+    Loss tensor of type float.
+  """
+  labels = tf.to_int64(labels)
+  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits, name='cross_entropy_per_example')
+  cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
+  tf.add_to_collection('losses', cross_entropy_mean)
+  
+  #The total loss is defined as the cross entropy loss plus all of the weight
+  #decay terms (L2 loss).
+  #return tf.add_n([cross_entropy_mean], name='total_loss') 
+  return cross_entropy_mean
 def loss_proj2(logits, labels):
   """
   From Wei
