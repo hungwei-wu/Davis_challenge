@@ -8,6 +8,7 @@ from loss import *
 import numpy
 #### import pascal (assignment 2)
 from pascal import *
+import lstm_net
 #from input_by_numpy import *
 ####
 import nets.fcn32_vgg as fcn32_vgg
@@ -34,7 +35,13 @@ def actual_train(images_batch,labels_batch):
     
 
     ############### output of VGG net
-    logits = vgg_fcn.upscore
+    logits = vgg_fcn.fc6
+    temp = set(tf.all_variables())
+    #with tf.variable_scope("lstm_conv"):
+    logits = lstm_net.lstm_deconv_layers(logits)
+    temp2 = set(tf.all_variables())
+    var_to_initialize = temp2 - temp
+
     #logits = vgg_fcn.conv5
     ###############
     #loss = loss_pal.loss(logits,labels_batch)
@@ -48,7 +55,9 @@ def actual_train(images_batch,labels_batch):
     #apply_gradient_op = opt.apply_gradients(grads, global_step=global_step)
     train_op = opt.apply_gradients(grads, global_step=global_step)
     merged = tf.summary.merge_all()
-
+    #with tf.Session() as sess:
+    #  lstm_init_op = tf.variables_initializer(list(temp2))
+     # sess.run(lstm_init_op)
 
 
     class _LoggerHook(tf.train.SessionRunHook):
@@ -56,7 +65,11 @@ def actual_train(images_batch,labels_batch):
 
       def begin(self):
         self._step = -1
-
+        lstm_init_op = tf.variables_initializer(list(temp2))
+        sess.run(lstm_init_op)
+        saver = tf.train.Saver(list(temp))
+      
+        saver.restore(sess, tf.train.latest_checkpoint('checkpoints/'))
       def before_run(self, run_context):
         self._step += 1
         self._start_time = time.time()
@@ -76,22 +89,29 @@ def actual_train(images_batch,labels_batch):
                                examples_per_sec, sec_per_batch))
     
     with tf.train.MonitoredTrainingSession(
-        checkpoint_dir='checkpoints/',
+        #checkpoint_dir='checkpoints/',
+        is_chief=True,
         hooks=[tf.train.StopAtStepHook(last_step=settings.MAX_STEPS),
                tf.train.NanTensorHook(loss_scalar),
                _LoggerHook()],
         config=tf.ConfigProto(
             log_device_placement=settings.log_device_placement),
-	save_checkpoint_secs=60) as sess:
-      
+	      save_checkpoint_secs=60) as sess:
+      #lstm_init_op = tf.variables_initializer(list(temp2))
+      #sess.run(lstm_init_op)
       train_writer = tf.summary.FileWriter(settings.summaries_dir + '/train',
                                       sess.graph)
+      #saver = tf.train.Saver(list(temp))
+      
+      #saver.restore(sess, tf.train.latest_checkpoint('checkpoints/'))
       while not sess.should_stop():
         print("===>training")
 
 
         (res_image,res_label) = readimg.read_next_natch()
         feed_dict={images_batch: res_image,label_batch:res_label}
+
+
         summary,_,global_step_out = sess.run([merged,train_op,global_step],feed_dict=feed_dict)
         train_writer.add_summary(summary, global_step_out)
         print("This is %d step" %global_step_out)
@@ -122,7 +142,7 @@ readimg = input_by_numpy.readIMage(settings.TRAIN_TXT,
   settings.LABEL_DIR)
 
 
-images_batch = tf.placeholder(tf.float32, shape=(settings.BATCH_SIZE,None,None,3),name='imageHolder')
-label_batch = tf.placeholder(tf.uint8,shape=(settings.BATCH_SIZE,None,None),name='labelHolder')
+images_batch = tf.placeholder(tf.float32, shape=(settings.BATCH_SIZE,480,640,3),name='imageHolder')
+label_batch = tf.placeholder(tf.uint8,shape=(settings.BATCH_SIZE,480,640),name='labelHolder')
 actual_train(images_batch,label_batch)
 
