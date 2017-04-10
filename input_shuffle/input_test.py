@@ -2,8 +2,8 @@ from input import *
 import numpy as np
 from PIL import Image
 import scipy.misc as misc
-readimg = readIMage('./data/DAVIS/ImageSets/480p/train.txt',
-	'./data/DAVIS')
+readimg = readIMage('./../data/DAVIS/ImageSets/480p/train.txt',
+	'./../data/DAVIS')
 '''readimg = readIMage('./test.txt',
 	'./data/DAVIS')'''
 
