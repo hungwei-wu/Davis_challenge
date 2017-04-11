@@ -1,5 +1,7 @@
 import numpy as np
-import settings
+import sys
+sys.path.append('../')
+from settings import settings
 import random
 from PIL import Image
 import os
@@ -14,7 +16,8 @@ class readIMage():
 		#print(data_filenames)
 		#print(label_filenames)
 		
-		video_category=[g.split('/')[6] for g in data_filenames]
+		video_category=[g.split('/')[7] for g in data_filenames]
+    
 		#print('video_category:\n'+' '.join(video_category)+'\n==================\n')
 		
 		self.video_category_number=[]
