@@ -1,16 +1,10 @@
 import sys,os
 sys.path.append(os.path.abspath("../"))
 import tensorflow as tf
-from PIL import Image
-#import settings
 from settings import settings
-import time
-from datetime import datetime
 from loss import *
 import numpy
 from pascal import *
-import lstm_net
-import nets.fcn32_vgg as fcn32_vgg
 import utils
 
 
@@ -22,22 +16,9 @@ def train_lstm_build(meta_graph_path=settings.lstm_meta_graph_path):
   lstm_saver = tf.train.import_meta_graph(meta_graph_path)
   lstm_graph = tf.get_default_graph()
 
-
-
-
-
-
-
   images_batch = lstm_graph.get_tensor_by_name('imageHolder:0')
   labels_batch = lstm_graph.get_tensor_by_name('labelHolder_1:0')
 
-
-  
-
-  #get train_op from lstm graph
-  #lstm_train_op = tf.get_collection('lstm_train_op')[0]
-
-  
   lstm_finetune_train_ops = tf.get_collection('lstm_train_op')
   return (images_batch,labels_batch,lstm_finetune_train_ops,lstm_saver)
 
@@ -60,7 +41,6 @@ def main(argv=None):
   with tf.Session(config=config) as sess:
     
     lstm_saver.restore(sess, tf.train.latest_checkpoint(settings.lstm_checkpoint_dir))
-    #lstm_saver.restore(sess, tf.train.latest_checkpoint(checkpoints_dir)) 
     print("restore lstm from ",checkpoints_dir)
    
     while True:
