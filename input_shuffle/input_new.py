@@ -18,8 +18,8 @@ class readIMage():
     #print(label_filenames)
     
     video_category=[g.split('/')[3] for g in filenames]
-    video_names=list(set([g.split('/')[3] for g in filenames]))
-    num_videos=len(video_names)
+    self.video_names=[]
+    self.num_videos=len(set([g.split('/')[3] for g in filenames]))
     
     #print('video_category:\n'+' '.join(video_category)+'\n==================\n')
     
@@ -27,10 +27,12 @@ class readIMage():
     self.video_category_number.append(0)    
     for j in range(len(data_filenames)-1):  
       if video_category[j+1]!=video_category[j]:
-        self.video_category_number.append(j)
+        self.video_category_number.append(j+1)
+        self.video_names.append(video_category[j])
     self.video_category_number.append(len(data_filenames)-1)
+    self.video_names.append(video_category[len(data_filenames)-1])
     #print('video_category_number:\n'+' '.join(map(str, self.video_category_number))+'\n==================\n')
-    print('Total number of videos is: %d' %(num_videos)+'\n==================\n')
+    print('Total number of videos is: %d' %(self.num_videos)+'\n==================\n')
     
     #self.image_label_queue = list(zip(data_filenames,label_filenames))
     self.image_label_queue = zip(data_filenames,label_filenames)    
@@ -45,7 +47,7 @@ class readIMage():
     self.sample_video=[]*(batch*(len(self.video_category_number)-1))
     
     for k in range(len(self.video_category_number)-1):  
-      self.sample[k]=random.randint(self.video_category_number[k],(self.video_category_number[k+1]-batch))  
+      self.sample[k]=random.randint(self.video_category_number[k],(self.video_category_number[k+1]-batch-1))  
     #print('sample:\n'+' '.join(map(str, self.sample))+'\n==================\n')
     
     if shuffle:

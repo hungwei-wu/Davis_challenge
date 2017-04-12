@@ -9,7 +9,7 @@ class settings():
   #NUM_EPOCHS_PER_DECAY = 350
   #MOVING_AVERAGE_DECAY = 0.9999
   #NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2223 # number of images under segmentationClass file
-  #NUM_CLASSES = 21
+  NUM_CLASSES = 2
   DEBUG = True
   
   MAX_STEPS = 3
@@ -35,7 +35,7 @@ class settings():
   
   #IMAGE_DIR = '/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/JPEGImages'
   #LABEL_DIR = '/home/hungwei/cv542/CV_semanticSegmentation/data/TrainVal/VOCdevkit/VOC2011/SegmentationClass'
-
+  result_dir=os.path.join(my_scratch,'data/DAVIS/Results/Segmentations/480p/542new_test_online_400/')
 
   # for fine_tune_lstm and train_lstm.py
 
@@ -43,15 +43,14 @@ class settings():
   #lstm_checkpoint_dir = os.path.join(my_scratch,'lstm_checkpoints/')
   #lstm_meta_graph_path = os.path.join(my_scratch,'lstm_checkpoints/lstm-model.meta')
   #lstm_meta_graph_path = os.path.join(my_scratch,'full_lstm_checkpoints/full_lstm_model.ckpt.meta')
-  lstm_meta_graph_path = os.path.join(my_scratch,'full_lstm_checkpoints/new_model.ckpt-6654.meta')
+  lstm_meta_graph_path = os.path.join(my_scratch,'full_lstm_checkpoints/lstm-model.meta')
 
   #run fine_tune_lstm where to save full graph checkpoint
   full_lstm_dir = os.path.join(my_scratch,'full_lstm_checkpoints/')
   full_lstm_checkpoint_path = os.path.join(full_lstm_dir,'full_lstm_model.ckpt')
   
-  full_lstm_step_per_save = 2000
+  full_lstm_step_per_save = 1000
   
-  deconvlstm_state2=None
   
 
   #for my_test_full_lstm_pascal.py
@@ -59,8 +58,3 @@ class settings():
   whenever change graph, remove everything in full_lstm_dir, run fine_tune_lstm to create new checkpoint, then run train_full_lstm to train
   
   """
-def update_state(new_state):
-  settings.deconvlstm_state2=new_state
-  #print(settings.deconvlstm_state2)
-def reset_state():
-  settings.deconvlstm_state2=None
