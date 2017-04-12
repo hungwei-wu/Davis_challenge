@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 sys.path.append('../')
+import settings
 from settings import settings
 import random
 from PIL import Image
@@ -94,7 +95,11 @@ class readIMage():
     res_label = []
     for i in range(len(queue_part)):
       image = misc.imread(queue_part[i][0])
+      image = misc.imresize(image,(480,640),mode='RGB')
       res_image.append(image)
       label = misc.imread(queue_part[i][1],mode='P')
+      label = misc.imresize(label,(480,640),mode='P')
+      label = label[:,:,0]
+      label[label==255] = 1
       res_label.append(label)
     return (res_image,res_label)

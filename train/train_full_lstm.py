@@ -7,6 +7,7 @@ import numpy
 from pascal import *
 import utils
 
+from input_shuffle.input_new import *
 
 def train_lstm_build(meta_graph_path=settings.lstm_meta_graph_path):
 
@@ -27,9 +28,11 @@ def main(argv=None):
   
 
   #read pascal as example
-  readimg = input_by_numpy.readIMage(settings.TRAIN_TXT,
-    settings.IMAGE_DIR,
-    settings.LABEL_DIR)
+  #readimg = input_by_numpy.readIMage(settings.TRAIN_TXT,settings.IMAGE_DIR,settings.LABEL_DIR)
+  readimg=readIMage('/scratch/eecs542w17_fluxg/ytchang/data/DAVIS/ImageSets/480p/train.txt','/scratch/eecs542w17_fluxg/ytchang/data/DAVIS')
+
+  
+  
   #build full_lstn graph
   (images_batch,labels_batch,lstm_finetune_train_ops,lstm_saver) = train_lstm_build()
 
@@ -40,17 +43,23 @@ def main(argv=None):
   saver = tf.train.Saver()
   with tf.Session(config=config) as sess:
     
-    lstm_saver.restore(sess, tf.train.latest_checkpoint(settings.lstm_checkpoint_dir))
-    print("restore lstm from ",checkpoints_dir)
+    lstm_saver.restore(sess, tf.train.latest_checkpoint(settings.full_lstm_dir))
+    print("restore lstm from ",settings.full_lstm_dir)
    
     while True:
-      print("===>training")
+      print("===>train full lstm training")
 
 
-      (res_image,res_label) = readimg.read_next_natch()
+      #(res_image,res_label) = readimg.read_next_natch()
+      #res_image = numpy.asarray(res_image,dtype=numpy.float32)
+      #feed_dict={images_batch: res_image,labels_batch:res_label}
+      sequence=readimg.sample_and_shuffle()
+      res_image=sequence[0][0]
+      res_label=sequence[0][1]
+      
       res_image = numpy.asarray(res_image,dtype=numpy.float32)
+      res_label = numpy.asarray(res_label,dtype=numpy.float32)
       feed_dict={images_batch: res_image,labels_batch:res_label}
-
       
       _,global_step_out = sess.run(lstm_finetune_train_ops+[global_step],feed_dict=feed_dict)
       # save checkpoint every few steps

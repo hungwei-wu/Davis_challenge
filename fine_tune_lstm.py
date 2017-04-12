@@ -11,9 +11,13 @@ import nets.fcn32_vgg as fcn32_vgg
 import utils
 import os
 
+from input_shuffle.input_new import *
+
+
+
 #abs_checkpoint_dir = '/home/hungwei/my_scratch/checkpoints'
 abs_checkpoint_dir = settings.vgg_checkpoint_dir
-abs_lstm_checkpoint_dir = settings.lstm_checkpoint_dir
+abs_lstm_checkpoint_dir = settings.full_lstm_dir
 
 from tensorflow.python.tools import inspect_checkpoint
 inspect_checkpoint.print_tensors_in_checkpoint_file(tf.train.latest_checkpoint(abs_checkpoint_dir),[],[])
@@ -23,9 +27,8 @@ vgg_names = [n.name for n in vgg_graph.as_graph_def().node]
 #print(vgg_names)
 #print(tf.all_variables())
 
-readimg = input_by_numpy.readIMage(settings.TRAIN_TXT,
-  settings.IMAGE_DIR,
-  settings.LABEL_DIR)
+#readimg = input_by_numpy.readIMage(settings.TRAIN_TXT,settings.IMAGE_DIR,settings.LABEL_DIR)
+readimg=readIMage('/scratch/eecs542w17_fluxg/ytchang/data/DAVIS/ImageSets/480p/train.txt','/scratch/eecs542w17_fluxg/ytchang/data/DAVIS')
 #images_batch = tf.placeholder(tf.float32, shape=(settings.BATCH_SIZE,480,640,3),name='imageHolder')
 images_batch = vgg_graph.get_tensor_by_name('imageHolder:0')
 print("Get images_batch from meta file: ",images_batch)
@@ -78,13 +81,25 @@ with tf.Session(config=config) as sess:
     print("===>training")
 
 
-    (res_image,res_label) = readimg.read_next_natch()
+    #(res_image,res_label) = readimg.read_next_natch()
+    
+    
+    sequence=readimg.sample_and_shuffle()
+    res_image=sequence[0][0]
+    res_label=sequence[0][1]
+    
+    res_image = numpy.asarray(res_image,dtype=numpy.float32)
+    res_label = numpy.asarray(res_label,dtype=numpy.float32)
+    feed_dict={images_batch: res_image,labels_batch:res_label}
+    
+    
+    
     #res_image = [a.astype(numpy.float32) for a in res_image]
     #res_image.astype(numpy.float32)
-    res_image = numpy.asarray(res_image,dtype=numpy.float32)
+    #res_image = numpy.asarray(res_image,dtype=numpy.float32)
     print(res_image.shape)
     print(res_image.dtype)
-    feed_dict={images_batch: res_image,labels_batch:res_label}
+    #feed_dict={images_batch: res_image,labels_batch:res_label}
 
 
     _,global_step_out = sess.run([train_op,global_step],feed_dict=feed_dict)
