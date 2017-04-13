@@ -12,7 +12,7 @@ def create_overlay(jpegimage_filename,annotation_filename):
 	
 	background = background.convert("RGBA")
 	background_copy = background.copy()
-	background_copy.show()
+	#background_copy.show()
 
 ##===============================================================##
 ## create red overlay
