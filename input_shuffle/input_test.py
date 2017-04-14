@@ -14,7 +14,10 @@ for j in range(1):
   #(res_image,res_label) = readimg.sample_and_shuffle(video_number=6,shuffle=True,batch=10)
   #print(len(res_image))
   #sequence=readimg.sample_and_shuffle(video_number=6,shuffle=True,batch=5)
-  sequence=readimg.read_whole_video(0)
+  
+  videoInd=28
+  sequence=readimg.read_whole_video(videoInd)
+  print(readimg.video_names[videoInd])
   print("sequence length:{}".format(len(sequence)))
   print("batch size: {}".format(len(sequence[0][0])))
   for batch in sequence:
@@ -22,7 +25,7 @@ for j in range(1):
     label_batch=batch[1]
     sampleImg=Image.fromarray(np.array(img_batch[0]), 'RGB')
     samplelabel=Image.fromarray(np.array(label_batch[0]), 'P')
-    #sampleImg.show()
+    sampleImg.show()
     #samplelabel.show()
     
     #print("======frame begin, batch size={}======".format(len(batch[0])))
